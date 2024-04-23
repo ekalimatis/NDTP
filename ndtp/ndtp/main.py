@@ -65,13 +65,22 @@ def get_nph_packet_type(header: NPHHeader) -> type:
 
 
 def unpack_packet(packet_type: type, raw_data: bytes) -> Any:
+    fields, format_string = get_fields_and_struct(packet_type)
+    packet_data = struct.unpack(format_string, raw_data)
+
+    attr = {}
+    for param, value in zip(fields, packet_data):
+        attr[param[0]] = param[1].value.constructor(value)
+
+    return packet_type(**attr)
+
+
+def get_fields_and_struct(packet_type: type) -> tuple[list[tuple[str, Any]], str]:
     format_string = '<'
     fields = []
-    attr = {}
+
     for field, _type in packet_type.__annotations__.items():
         format_string += _type.value.code
         fields.append((field, _type))
-    packet_data = struct.unpack(format_string, raw_data)
-    for param, value in zip(fields, packet_data):
-        attr[param[0]] = param[1].value.constructor(value)
-    return packet_type(**attr)
+
+    return fields, format_string
