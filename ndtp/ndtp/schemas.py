@@ -55,8 +55,8 @@ class AttrTypes(enum.Enum):
     npl_types = AttrType('npl_types', 'b', 1, NPLTypes)
     nph_service_type = AttrType('nph_service_type', 'H', 2, NPHServiceTypes)
     nph_packet_type = AttrType('nph_packet_type', 'H', 2, int)
-    extra_dop = AttrType('extra_dop', 'b', 1, to_bin)
-    u_int8 = AttrType('byte', 'b', 1, int)
+    extra_dop = AttrType('extra_dop', 'B', 1, to_bin)
+    u_int8 = AttrType('unsigned char', 'B', 1, int)
 
 
 @dataclass
@@ -91,6 +91,12 @@ class NPHPacket:
 
 
 @dataclass
+class NphSnd:
+    data_type: AttrTypes.u_int8  # type: ignore
+    number: AttrTypes.u_int8  # type: ignore
+
+
+@dataclass
 class NphSrvNavData:
     time_stamp: AttrTypes.u_int32  # type: ignore
     longitude: AttrTypes.u_int32  # type: ignore
@@ -104,6 +110,11 @@ class NphSrvNavData:
     altitude: AttrTypes.int16  # type: ignore
     nsat: AttrTypes.u_int8  # type: ignore
     pdop: AttrTypes.u_int8  # type: ignore
+
+
+@dataclass
+class NphSndNav(NphSnd):
+    data: NphSrvNavData
 
 
 @dataclass
@@ -126,14 +137,13 @@ class Inner_Device_Data:
 
 
 @dataclass
-class NphResult:
-    error: AttrTypes.u_int32  # type: ignore
+class NphSndDev(NphSnd):
+    data: Inner_Device_Data
 
 
 @dataclass
-class NphSnd:
-    data_type: AttrTypes.u_int8  # type: ignore
-    number: AttrTypes.u_int8  # type: ignore
+class NphResult:
+    error: AttrTypes.u_int32  # type: ignore
 
 
 @dataclass

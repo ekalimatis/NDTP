@@ -10,4 +10,11 @@ repos:
       - id: flake8
         name: flake8
         args: [--max-line-length=120, --exclude=ndtp/tests/test_main.py]
-#        args: ["--ignore=E302"]
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: pytest-check
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true

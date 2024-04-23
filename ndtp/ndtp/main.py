@@ -1,15 +1,15 @@
 import struct
-from dataclasses import make_dataclass, asdict
+from dataclasses import asdict
 from typing import Any
 
 from ndtp.schemas import NPLPacket, NPLHeader
-from ndtp.schemas import NPHPacket, NPHHeader, NphSnd, NphSrvNavData, Inner_Device_Data
+from ndtp.schemas import NPHPacket, NPHHeader, NphSnd, NphSrvNavData, Inner_Device_Data, NphSndDev, NphSndNav
 from ndtp.schemas import Ndtp_Service_Type_dict
 from ndtp.functions import length
 
 NPL_HEADER_SIZE = 15
 NPH_HEADER_SIZE = 10
-NPH_SND_HEDAER_SIZE = 2
+NPH_SND_HEADER_SIZE = 2
 
 
 def unpack(raw_packet: str) -> NPLPacket:
@@ -24,7 +24,7 @@ def unpack_nph_packet(raw: bytes) -> NPHPacket:
     header = unpack_packet(NPHHeader, raw[:NPH_HEADER_SIZE])
     packet_type = get_nph_packet_type(header)
     if packet_type == NphSnd:
-        data = get_nph_snd(raw[NPH_HEADER_SIZE:])
+        data = unpack_nph_snd(raw[NPH_HEADER_SIZE:])
         return NPHPacket(header, data)
 
     packet_raw_data = raw[NPH_HEADER_SIZE:NPH_HEADER_SIZE + length(packet_type)]
@@ -32,23 +32,21 @@ def unpack_nph_packet(raw: bytes) -> NPHPacket:
     return NPHPacket(header, data)
 
 
-def get_nph_snd(raw: bytes) -> list[NphSnd]:
+def unpack_nph_snd(raw: bytes) -> list[NphSnd]:
     data = []
 
     while len(raw) > 0:
-        header = unpack_packet(NphSnd, raw[:NPH_SND_HEDAER_SIZE])
-        nph_snd_packed = None
+        header = unpack_packet(NphSnd, raw[:NPH_SND_HEADER_SIZE])
+        nph_snd_packed: NphSnd | None = None
         match header.data_type:
             case 0:
-                NphSndNav = make_dataclass('NphSndNav', fields=[('data', NphSrvNavData)], bases=(NphSnd,))
-                raw_data = raw[NPH_SND_HEDAER_SIZE:NPH_SND_HEDAER_SIZE + length(NphSrvNavData)]
+                raw_data = raw[NPH_SND_HEADER_SIZE:NPH_SND_HEADER_SIZE + length(NphSrvNavData)]
                 nav_data = unpack_packet(NphSrvNavData, raw_data)
                 nph_snd_packed = NphSndNav(**asdict(header), data=nav_data)
             case 1:
                 pass
             case 2:
-                NphSndDev = make_dataclass('NphSndNav', fields=[('data', Inner_Device_Data), ], bases=(NphSnd,))
-                raw_data = raw[NPH_SND_HEDAER_SIZE:NPH_SND_HEDAER_SIZE + length(Inner_Device_Data)]
+                raw_data = raw[NPH_SND_HEADER_SIZE:NPH_SND_HEADER_SIZE + length(Inner_Device_Data)]
                 inner_device_data = unpack_packet(Inner_Device_Data, raw_data)
                 nph_snd_packed = NphSndDev(**asdict(header), data=inner_device_data)
             case _:
@@ -56,7 +54,7 @@ def get_nph_snd(raw: bytes) -> list[NphSnd]:
 
         if nph_snd_packed:
             data.append(nph_snd_packed)
-        raw = raw[NPH_SND_HEDAER_SIZE + len(raw_data):]
+        raw = raw[NPH_SND_HEADER_SIZE + len(raw_data):]
 
     return data
 
