@@ -5,7 +5,7 @@ from typing import Any
 from ndtp.schemas import NPLPacket, NPLHeader
 from ndtp.schemas import NPHPacket, NPHHeader, NphSnd, NphSrvNavData, Inner_Device_Data, NphSndDev, NphSndNav
 from ndtp.schemas import Ndtp_Service_Type_dict
-from ndtp.functions import length
+from ndtp.functions import get_length, get_fields_and_struct
 
 NPL_HEADER_SIZE = 15
 NPH_HEADER_SIZE = 10
@@ -27,30 +27,30 @@ def unpack_nph_packet(raw: bytes) -> NPHPacket:
         data = unpack_nph_snd(raw[NPH_HEADER_SIZE:])
         return NPHPacket(header, data)
 
-    packet_raw_data = raw[NPH_HEADER_SIZE:NPH_HEADER_SIZE + length(packet_type)]
+    packet_raw_data = raw[NPH_HEADER_SIZE:NPH_HEADER_SIZE + get_length(packet_type)]
     data = unpack_packet(packet_type, packet_raw_data)
     return NPHPacket(header, data)
 
 
-def unpack_nph_snd(raw: bytes) -> list[NphSnd]:
+def unpack_nph_snd(raw: bytes) -> list[NphSndNav | NphSndDev]:
     data = []
 
     while len(raw) > 0:
         header = unpack_packet(NphSnd, raw[:NPH_SND_HEADER_SIZE])
-        nph_snd_packed: NphSnd | None = None
+        nph_snd_packed: NphSndNav | NphSndDev
         match header.data_type:
             case 0:
-                raw_data = raw[NPH_SND_HEADER_SIZE:NPH_SND_HEADER_SIZE + length(NphSrvNavData)]
+                raw_data = raw[NPH_SND_HEADER_SIZE:NPH_SND_HEADER_SIZE + get_length(NphSrvNavData)]
                 nav_data = unpack_packet(NphSrvNavData, raw_data)
                 nph_snd_packed = NphSndNav(**asdict(header), data=nav_data)
             case 1:
-                pass
+                raise KeyError
             case 2:
-                raw_data = raw[NPH_SND_HEADER_SIZE:NPH_SND_HEADER_SIZE + length(Inner_Device_Data)]
+                raw_data = raw[NPH_SND_HEADER_SIZE:NPH_SND_HEADER_SIZE + get_length(Inner_Device_Data)]
                 inner_device_data = unpack_packet(Inner_Device_Data, raw_data)
                 nph_snd_packed = NphSndDev(**asdict(header), data=inner_device_data)
             case _:
-                pass
+                raise KeyError
 
         if nph_snd_packed:
             data.append(nph_snd_packed)
@@ -73,14 +73,3 @@ def unpack_packet(packet_type: type, raw_data: bytes) -> Any:
         attr[param[0]] = param[1].value.constructor(value)
 
     return packet_type(**attr)
-
-
-def get_fields_and_struct(packet_type: type) -> tuple[list[tuple[str, Any]], str]:
-    format_string = '<'
-    fields = []
-
-    for field, _type in packet_type.__annotations__.items():
-        format_string += _type.value.code
-        fields.append((field, _type))
-
-    return fields, format_string

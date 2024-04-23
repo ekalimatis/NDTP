@@ -2,7 +2,7 @@ import enum
 from typing import Callable, Any
 from dataclasses import dataclass
 
-from .functions import to_bin, length
+from .functions import to_bin, get_length
 
 
 class NPLTypes(enum.Enum):
@@ -87,7 +87,7 @@ class NPHPacket:
     data: Any
 
     def __len__(self) -> int:
-        return len(self.header) + length(type(self.data))
+        return len(self.header) + get_length(type(self.data))
 
 
 @dataclass
