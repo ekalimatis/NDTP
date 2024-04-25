@@ -1,8 +1,9 @@
 import enum
 from typing import Callable, Any
 from dataclasses import dataclass
+from datetime import datetime
 
-from .functions import to_bin, get_length
+from ndtp.functions import to_bin8, to_bin16, get_length
 
 
 class NPLTypes(enum.Enum):
@@ -48,15 +49,16 @@ class AttrType:
 class AttrTypes(enum.Enum):
     int16 = AttrType('short', 'h', 2, int)
     u_int16 = AttrType('u_short', 'H', 2, int)
-    f_int16 = AttrType('f_short', 'h', 2, to_bin)
-    f_u_int16 = AttrType('f_u_short', 'H', 2, to_bin)
+    f_int16 = AttrType('f_short', 'h', 2, to_bin16)
+    f_u_int16 = AttrType('f_u_short', 'H', 2, to_bin16)
     int32 = AttrType('integer', 'i', 4, int)
     u_int32 = AttrType('u_integer', 'I', 4, int)
     npl_types = AttrType('npl_types', 'b', 1, NPLTypes)
     nph_service_type = AttrType('nph_service_type', 'H', 2, NPHServiceTypes)
     nph_packet_type = AttrType('nph_packet_type', 'H', 2, int)
-    extra_dop = AttrType('extra_dop', 'B', 1, to_bin)
     u_int8 = AttrType('unsigned char', 'B', 1, int)
+    f_u_int8 = AttrType('f_unsigned byte', 'B', 1, to_bin8)
+    time_stamp = AttrType('unsigned int32', 'I', 4, datetime.fromtimestamp)
 
 
 @dataclass
@@ -98,10 +100,11 @@ class NphSnd:
 
 @dataclass
 class NphSrvNavData:
-    time_stamp: AttrTypes.u_int32  # type: ignore
+    """Type = 1"""
+    time_stamp: AttrTypes.time_stamp  # type: ignore
     longitude: AttrTypes.u_int32  # type: ignore
     latitude: AttrTypes.u_int32  # type: ignore
-    extra_dop: AttrTypes.extra_dop  # type: ignore
+    extra_dop: AttrTypes.f_u_int8  # type: ignore
     bat_voltage: AttrTypes.u_int8  # type: ignore
     speed_avg: AttrTypes.u_int16  # type: ignore
     speed_max: AttrTypes.u_int16  # type: ignore
@@ -111,6 +114,10 @@ class NphSrvNavData:
     nsat: AttrTypes.u_int8  # type: ignore
     pdop: AttrTypes.u_int8  # type: ignore
 
+    @staticmethod
+    def get_length() -> int:
+        return 26
+
 
 @dataclass
 class NphSndNav(NphSnd):
@@ -118,7 +125,8 @@ class NphSndNav(NphSnd):
 
 
 @dataclass
-class Inner_Device_Data:
+class InnerDeviceData:
+    """Type = 2"""
     an_in0: AttrTypes.u_int16  # type: ignore
     an_in1: AttrTypes.u_int16  # type: ignore
     an_in2: AttrTypes.u_int16  # type: ignore
@@ -135,10 +143,63 @@ class Inner_Device_Data:
     Accel_Energ: AttrTypes.u_int8  # type: ignore
     ext_volt: AttrTypes.u_int8  # type: ignore
 
+    @staticmethod
+    def get_length() -> int:
+        return 26
+
 
 @dataclass
 class NphSndDev(NphSnd):
-    data: Inner_Device_Data
+    data: InnerDeviceData
+
+
+@dataclass
+class KoronaDeviceData:
+    """Type = 3"""
+    odometer: AttrTypes.u_int32  # type: ignore
+    zone: AttrTypes.u_int16  # type: ignore
+    door1_in: AttrTypes.u_int8  # type: ignore
+    door2_in: AttrTypes.u_int8  # type: ignore
+    door3_in: AttrTypes.u_int8  # type: ignore
+    door4_in: AttrTypes.u_int8  # type: ignore
+    door1_out: AttrTypes.u_int8  # type: ignore
+    door2_out: AttrTypes.u_int8  # type: ignore
+    door3_out: AttrTypes.u_int8  # type: ignore
+    door4_out: AttrTypes.u_int8  # type: ignore
+
+    @staticmethod
+    def get_length() -> int:
+        return 14
+
+
+@dataclass
+class NphSndKorona(NphSnd):
+    data: KoronaDeviceData
+
+
+@dataclass
+class IrmaDeviceData:
+    """Type = 4"""
+    odometer: AttrTypes.u_int32  # type: ignore
+    zone: AttrTypes.u_int16  # type: ignore
+    door1_in: AttrTypes.u_int8  # type: ignore
+    door2_in: AttrTypes.u_int8  # type: ignore
+    door3_in: AttrTypes.u_int8  # type: ignore
+    door4_in: AttrTypes.u_int8  # type: ignore
+    door1_out: AttrTypes.u_int8  # type: ignore
+    door2_out: AttrTypes.u_int8  # type: ignore
+    door3_out: AttrTypes.u_int8  # type: ignore
+    door4_out: AttrTypes.u_int8  # type: ignore
+    present_door: AttrTypes.f_u_int8  # type: ignore
+
+    @staticmethod
+    def get_length() -> int:
+        return 15
+
+
+@dataclass
+class NphSndIrma(NphSnd):
+    data: IrmaDeviceData
 
 
 @dataclass

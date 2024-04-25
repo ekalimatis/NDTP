@@ -4,3 +4,7 @@ typing:
 	mypy .
 tests:
 	pytest .
+all:
+	flake8 .
+	mypy .
+	pytest .
