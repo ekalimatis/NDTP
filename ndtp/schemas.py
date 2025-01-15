@@ -3,7 +3,7 @@ from typing import Callable, Any
 from dataclasses import dataclass
 from datetime import datetime
 
-from ndtp1.functions import to_bin8, to_bin16, get_length
+from ndtp.functions import to_bin8, to_bin16, get_length
 
 
 class NPLTypes(enum.Enum):

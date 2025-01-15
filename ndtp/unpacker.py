@@ -2,10 +2,11 @@ import struct
 from dataclasses import asdict
 from typing import Any
 
-from schemas import NPLPacket, NPLHeader, NPHPacket, NPHHeader, NphSnd
-from schemas import NphSrvNavData, NphSndNav, InnerDeviceData, NphSndDev, KoronaDeviceData, NphSndKorona
-from schemas import Ndtp_Service_Type_dict
-from functions import get_length, get_fields_and_struct
+from ndtp.schemas import NPLPacket, NPLHeader, NPHPacket, NPHHeader, NphSnd
+from ndtp.schemas import (NphSrvNavData, NphSndNav, InnerDeviceData,
+                          NphSndDev, KoronaDeviceData, NphSndKorona)
+from ndtp.schemas import Ndtp_Service_Type_dict
+from ndtp.functions import get_length, get_fields_and_struct
 
 NPL_HEADER_SIZE = 15
 NPH_HEADER_SIZE = 10
@@ -46,7 +47,8 @@ def unpack_nph_snd(raw: bytes) -> list[NphSndNav | NphSndDev | NphSndKorona]:
                 nav_data = unpack_packet(NphSrvNavData, raw_data)
                 nph_snd_packed = NphSndNav(**asdict(header), data=nav_data)
             case 1:
-                raise KeyError  # Дополнительные навигационные данные Type=1 (структура на данный моментне реализована).
+                raise KeyError  # Дополнительные навигационные данные Type=1 (структура
+                # на данный момент не реализована).
             case 2:
                 raw_data = raw[:get_length(InnerDeviceData)]
                 inner_device_data = unpack_packet(InnerDeviceData, raw_data)

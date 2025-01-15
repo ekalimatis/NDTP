@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 
-from ndtp1.schemas import (NPLPacket,
+from ndtp.schemas import (NPLPacket,
                            NPLHeader,
                            NPHPacket,
                            NPHHeader,

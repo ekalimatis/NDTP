@@ -1,10 +1,10 @@
 import pytest
 
-from ndtp1.main import unpack_packet, unpack
-from ndtp1.schemas import (NPLHeader,
+from ndtp.unpacker import unpack_packet, unpack
+from ndtp.schemas import (NPLHeader,
                            NPHHeader,
                            NPLTypes)
-from ndtp1.functions import to_bin8, to_bin16, get_length
+from ndtp.functions import to_bin8, to_bin16, get_length
 
 
 @pytest.mark.parametrize(
