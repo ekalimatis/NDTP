@@ -1,16 +1,16 @@
 import pytest
 from datetime import datetime
 
-from ndtp.schemas import (NPLPacket,
-                          NPLHeader,
-                          NPHPacket,
-                          NPHHeader,
-                          NphSrvNavData,
-                          InnerDeviceData,
-                          NPLTypes,
-                          NPHServiceTypes,
-                          NphSndNav,
-                          NphSndDev)
+from ndtp1.schemas import (NPLPacket,
+                           NPLHeader,
+                           NPHPacket,
+                           NPHHeader,
+                           NphSrvNavData,
+                           InnerDeviceData,
+                           NPLTypes,
+                           NPHServiceTypes,
+                           NphSndNav,
+                           NphSndDev)
 
 
 @pytest.fixture

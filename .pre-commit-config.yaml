@@ -9,7 +9,7 @@ repos:
     hooks:
       - id: flake8
         name: flake8
-        args: [--max-line-length=120, --exclude=ndtp/tests/test_main.py]
+        args: [--max-line-length=120, --exclude=ndtp1/tests/test_main.py]
   - repo: local
     hooks:
       - id: pytest-check
