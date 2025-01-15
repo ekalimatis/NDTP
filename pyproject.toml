@@ -14,6 +14,17 @@ flake8 = "^7.0.0"
 pytest-clarity = "^1.0.1"
 
 
+[tool.poetry.group.tests.dependencies]
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+pytest-clarity = "^1.0.1"
+
+
+[tool.poetry.group.lint.dependencies]
+mypy = "^1.14.1"
+ruff = "^0.9.1"
+flake8 = "^7.1.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

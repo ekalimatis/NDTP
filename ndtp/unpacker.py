@@ -2,10 +2,10 @@ import struct
 from dataclasses import asdict
 from typing import Any
 
-from ndtp.schemas import NPLPacket, NPLHeader, NPHPacket, NPHHeader, NphSnd
-from ndtp.schemas import NphSrvNavData, NphSndNav, InnerDeviceData, NphSndDev, KoronaDeviceData, NphSndKorona
-from ndtp.schemas import Ndtp_Service_Type_dict
-from ndtp.functions import get_length, get_fields_and_struct
+from schemas import NPLPacket, NPLHeader, NPHPacket, NPHHeader, NphSnd
+from schemas import NphSrvNavData, NphSndNav, InnerDeviceData, NphSndDev, KoronaDeviceData, NphSndKorona
+from schemas import Ndtp_Service_Type_dict
+from functions import get_length, get_fields_and_struct
 
 NPL_HEADER_SIZE = 15
 NPH_HEADER_SIZE = 10
